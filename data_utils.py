@@ -10,13 +10,15 @@ import random
 
 padToken, goToken, eosToken, unknownToken = 0, 1, 2, 3
 
+
 class Batch:
-    #batch类，里面包含了encoder输入，decoder输入，decoder标签，decoder样本长度mask
+    # batch类，里面包含了encoder输入，decoder输入，decoder标签，decoder样本长度mask
     def __init__(self):
         self.encoderSeqs = []
         self.decoderSeqs = []
         self.targetSeqs = []
         self.weights = []
+
 
 def loadDataset(filename):
     '''
@@ -28,11 +30,13 @@ def loadDataset(filename):
     dataset_path = os.path.join(filename)
     print('Loading dataset from {}'.format(dataset_path))
     with open(dataset_path, 'rb') as handle:
-        data = pickle.load(handle)  # Warning: If adding something here, also modifying saveDataset
+        # Warning: If adding something here, also modifying saveDataset
+        data = pickle.load(handle)
         word2id = data['word2id']
         id2word = data['id2word']
         trainingSamples = data['trainingSamples']
     return word2id, id2word, trainingSamples
+
 
 def createBatch(samples, en_de_seq_len):
     '''
@@ -42,21 +46,27 @@ def createBatch(samples, en_de_seq_len):
     :return: 处理完之后可以直接传入feed_dict的数据格式
     '''
     batch = Batch()
-    #根据样本长度获得batch size大小
+    # 根据样本长度获得batch size大小
     batchSize = len(samples)
-    #将每条数据的问题和答案分开传入到相应的变量中
+    # 将每条数据的问题和答案分开传入到相应的变量中
     for i in range(batchSize):
         sample = samples[i]
         batch.encoderSeqs.append(list(reversed(sample[0])))  # 将输入反序，可提高模型效果
-        batch.decoderSeqs.append([goToken] + sample[1] + [eosToken])  # Add the <go> and <eos> tokens
-        batch.targetSeqs.append(batch.decoderSeqs[-1][1:])  # Same as decoder, but shifted to the left (ignore the <go>)
+        # Add the <go> and <eos> tokens
+        batch.decoderSeqs.append([goToken] + sample[1] + [eosToken])
+        # Same as decoder, but shifted to the left (ignore the <go>)
+        batch.targetSeqs.append(batch.decoderSeqs[-1][1:])
         # 将每个元素PAD到指定长度，并构造weights序列长度mask标志
-        batch.encoderSeqs[i] = [padToken] * (en_de_seq_len[0] - len(batch.encoderSeqs[i])) + batch.encoderSeqs[i]
-        batch.weights.append([1.0] * len(batch.targetSeqs[i]) + [0.0] * (en_de_seq_len[1] - len(batch.targetSeqs[i])))
-        batch.decoderSeqs[i] = batch.decoderSeqs[i] + [padToken] * (en_de_seq_len[1] - len(batch.decoderSeqs[i]))
-        batch.targetSeqs[i] = batch.targetSeqs[i] + [padToken] * (en_de_seq_len[1] - len(batch.targetSeqs[i]))
+        batch.encoderSeqs[i] = [
+            padToken] * (en_de_seq_len[0] - len(batch.encoderSeqs[i])) + batch.encoderSeqs[i]
+        batch.weights.append([1.0] * len(batch.targetSeqs[i]) +
+                             [0.0] * (en_de_seq_len[1] - len(batch.targetSeqs[i])))
+        batch.decoderSeqs[i] = batch.decoderSeqs[i] + [padToken] * \
+            (en_de_seq_len[1] - len(batch.decoderSeqs[i]))
+        batch.targetSeqs[i] = batch.targetSeqs[i] + [padToken] * \
+            (en_de_seq_len[1] - len(batch.targetSeqs[i]))
 
-    #--------------------接下来就是将数据进行reshape操作，变成序列长度*batch_size格式的数据------------------------
+    # --------------------接下来就是将数据进行reshape操作，变成序列长度*batch_size格式的数据------------------------
     encoderSeqsT = []  # Corrected orientation
     for i in range(en_de_seq_len[0]):
         encoderSeqT = []
@@ -85,6 +95,7 @@ def createBatch(samples, en_de_seq_len):
 
     return batch
 
+
 def getBatches(data, batch_size, en_de_seq_len):
     '''
     根据读取出来的所有数据和batch_size将原始数据分成不同的小batch。对每个batch索引的样本调用createBatch函数进行处理
@@ -93,10 +104,11 @@ def getBatches(data, batch_size, en_de_seq_len):
     :param en_de_seq_len: 列表，第一个元素表示source端序列的最大长度，第二个元素表示target端序列的最大长度
     :return: 列表，每个元素都是一个batch的样本数据，可直接传入feed_dict进行训练
     '''
-    #每个epoch之前都要进行样本的shuffle
+    # 每个epoch之前都要进行样本的shuffle
     random.shuffle(data)
     batches = []
     data_len = len(data)
+
     def genNextSamples():
         for i in range(0, data_len, batch_size):
             yield data[i:min(i + batch_size, data_len)]
@@ -105,6 +117,7 @@ def getBatches(data, batch_size, en_de_seq_len):
         batch = createBatch(samples, en_de_seq_len)
         batches.append(batch)
     return batches
+
 
 def sentence2enco(sentence, word2id, en_de_seq_len):
     '''
@@ -116,14 +129,14 @@ def sentence2enco(sentence, word2id, en_de_seq_len):
     '''
     if sentence == '':
         return None
-    #分词
+    # 分词
     tokens = nltk.word_tokenize(sentence)
     if len(tokens) > en_de_seq_len[0]:
         return None
-    #将每个单词转化为id
+    # 将每个单词转化为id
     wordIds = []
     for token in tokens:
         wordIds.append(word2id.get(token, unknownToken))
-    #调用createBatch构造batch
+    # 调用createBatch构造batch
     batch = createBatch([[wordIds, []]], en_de_seq_len)
     return batch

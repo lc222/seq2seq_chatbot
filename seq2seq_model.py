@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Date    : 2019-06-14 20:51:26
+# @Author  : Your Name (you@example.org)
+# @Link    : http://example.org
+# @Version : $Id$
+
 import tensorflow as tf
 from seq2seq import embedding_attention_seq2seq
 

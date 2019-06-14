@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Date    : 2019-06-14 20:51:26
+# @Author  : Your Name (you@example.org)
+# @Link    : http://example.org
+# @Version : $Id$
+
 """Most of the code comes from seq2seq tutorial. Binary for training conversation models and decoding from them.
 
 Running this program without --decode will  tokenize it in a very basic way,
@@ -41,7 +48,7 @@ tf.app.flags.DEFINE_integer(
 tf.app.flags.DEFINE_boolean(
     "beam_search", True, "Set to True for beam_search.")
 tf.app.flags.DEFINE_boolean(
-    "decode", False, "Set to True for interactive decoding.")
+    "decode", True, "Set to True for interactive decoding.")
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -103,7 +110,8 @@ def decode():
         model = create_model(
             sess, True, beam_search=beam_search, beam_size=beam_size)
         model.batch_size = 1
-        data_path = 'E:\PycharmProjects\Seq-to-Seq\seq2seq_chatbot\data\dataset-cornell-length10-filter1-vocabSize40000.pkl'
+        data_path = 'data/dataset-cornell-length10-filter1-vocabSize40000.pkl'
+        data_path = os.path.join(os.path.abspath("."), data_path)
         word2id, id2word, trainingSamples = loadDataset(data_path)
 
         if beam_search:

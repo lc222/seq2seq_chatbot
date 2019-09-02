@@ -28,7 +28,7 @@ from tqdm import tqdm
 
 tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
 tf.app.flags.DEFINE_integer(
-    "batch_size", 256, "Batch size to use during training.")  # 32 64 256 太大
+    "batch_size", 64, "Batch size to use during training.")  # 32 64 256 太大
 tf.app.flags.DEFINE_integer(
     "numEpochs", 30, "Batch size to use during training.")
 tf.app.flags.DEFINE_integer("size", 512, "Size of each model layer.")
@@ -40,9 +40,9 @@ tf.app.flags.DEFINE_integer(
 tf.app.flags.DEFINE_integer(
     "steps_per_checkpoint", 100, "How many training steps to do per checkpoint.")
 tf.app.flags.DEFINE_string(
-    "train_dir", 'model', "How many training steps to do per checkpoint.")
+    "train_dir", './model', "How many training steps to do per checkpoint.")
 tf.app.flags.DEFINE_string(
-    "tmp", 'tmp', "How many training steps to do per checkpoint.")
+    "tmp", './tmp', "How many training steps to do per checkpoint.")
 tf.app.flags.DEFINE_integer(
     "beam_size", 5, "How many training steps to do per checkpoint.")
 tf.app.flags.DEFINE_boolean(

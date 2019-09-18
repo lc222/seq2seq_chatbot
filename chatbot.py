@@ -28,7 +28,7 @@ from tqdm import tqdm
 
 tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
 tf.app.flags.DEFINE_integer(
-    "batch_size", 64, "Batch size to use during training.")  # 32 64 256 太大
+    "batch_size", 64, "Batch size to use during training.")  # 32 64 256 大小根据机器选择
 tf.app.flags.DEFINE_integer(
     "numEpochs", 30, "Batch size to use during training.")
 tf.app.flags.DEFINE_integer("size", 512, "Size of each model layer.")
@@ -48,7 +48,7 @@ tf.app.flags.DEFINE_integer(
 tf.app.flags.DEFINE_boolean(
     "beam_search", True, "Set to True for beam_search.")
 tf.app.flags.DEFINE_boolean(
-    "decode", True, "Set to True for interactive decoding.")
+    "decode", False, "Set to True for interactive decoding.")
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -63,8 +63,8 @@ def create_model(session, forward_only, beam_search, beam_size=5):
         FLAGS.tmp, "chat_bot.ckpt-0")
     if forward_only:
         model.saver.restore(session, model_path)
-    elif ckpt and tf.gfile.Exists(ckpt):
-        print("Reading model parameters from %s" % ckpt)
+    elif ckpt and tf.gfile.Exists(ckpt + ".meta"):
+        print("Reading model parameters from checkpoint %s" % ckpt)
         model.saver.restore(session, ckpt)
     else:
         print("Created model with fresh parameters.")

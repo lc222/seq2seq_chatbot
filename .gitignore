@@ -1,5 +1,10 @@
+.vscode/
+
 # 模型文件
 model/*
+
+# ckpt
+ckpt*
 
 # 临时目录
 tmp/*

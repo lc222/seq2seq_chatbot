@@ -27,7 +27,7 @@ class Batch:
         self.weights = []
 
 
-def loadDataset(filename):
+def load_dataset(filename):
     '''
     读取样本数据
     :param filename: 文件路径，是一个字典，包含word2id、id2word分别是单词与索引对应的字典和反序字典，
